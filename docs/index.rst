@@ -3,7 +3,7 @@ pycoin
 
 Release v\ |version|. (:ref:`Installation <install>`)
 
-.. image:: https://codecov.io/github/richardkiss/pycoin/coverage.svg?branch=master
+.. image:: https://codecov.io/github/droxpopuli/pycoin-ci/coverage.svg?branch=master
     :target: https://codecov.io/github/richardkiss/pycoin
 
 .. image:: https://img.shields.io/pypi/l/pycoin.svg
@@ -12,8 +12,8 @@ Release v\ |version|. (:ref:`Installation <install>`)
 .. image:: https://img.shields.io/pypi/pyversions/pycoin.svg
     :target: https://pypi.python.org/pypi/pycoin
 
-.. image:: https://travis-ci.org/richardkiss/pycoin.svg?branch=master
-    :target: https://travis-ci.org/richardkiss/pycoin
+.. image:: https://travis-ci.org/droxpopuli/pycoin.svg?branch=master
+    :target: https://travis-ci.org/droxpopuli/pycoin
 
 This documentation is a work-in-progress, and your contributions are welcome at
 <https://github.com/richardkiss/pycoin>.
@@ -49,16 +49,14 @@ welcome!).
 Contents:
 
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
 
    install
    api
-   cmdtools
-   source/recipes
    bitcoin
-   source/contract
-   source/pycoin.ecdsa
-   source/pycoin.services
+   cmdtools
+   recipes/recipes
+   source/modules
 
 
 Indices and tables

@@ -1,0 +1,13 @@
+name: Security Scan
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - name: PyCharm Python Security Scanner
+      uses: tonybaloney/pycharm-security@1.13.0

@@ -1,0 +1,20 @@
+name: Greetings
+
+on: [pull_request, issues]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: 'Thank you for the Issue report. We also have a gitter linked from the repository readme for chat discussion.'
+        pr-message: 'Thank you for your Pull request, please ensure it fits the standards put forth in the template.'
+    - name: Pull Request title rules
+      uses: deepakputhraya/action-pr-title@v1.0.0
+      with:
+        allowed_prefixes: feature,hotfix,optimization,imrpovement,documentation,tooling
+        prefix_case_sensitive: false
+        min_length: 24
+        max_length: 72
