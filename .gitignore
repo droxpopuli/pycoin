@@ -7,3 +7,7 @@ files.txt
 *egg-info
 .DS_STORE
 .tox
+.mypy_cache
+.pytest_cache
+reports/*
+.coverage

@@ -1,26 +1,137 @@
-sudo: false
+os: linux
+dist: xenial
+
 language: python
-python:
-  - "2.7"
-  - "3.4"
-  - "3.5"
-  - "3.6"
-  - "pypy"
-  - "pypy3.5"
-  - "nightly"
-install: pip install coverage
-matrix:
+cache: pip
+
+jobs:
+  fast_finish: true
   allow_failures:
-    python:
-      - "nightly"
-      - "3.8-dev"
-  include:
-    - python: 3.7
-      dist: xenial
-      sudo: true
+    - env: LET_ME_FAIL=true
+    - os: windows
+    - python: pypy2
+    - python: pypy2.7
     - python: 3.8-dev
-      dist: xenial
-      sudo: true
-script:
-    - coverage run -m py.test tests
-    - bash <(curl -s https://codecov.io/bash)
+
+  include:
+    - stage: Static Analysis
+      name: lint
+      python: 3.7
+      env: LET_ME_FAIL=true
+      script: tox -e lint
+    - script: tox -e typing
+      name: typing
+      python: 3.7
+      env: LET_ME_FAIL=true
+
+    - stage: Linux Tests
+      name: Test on Python 2.7
+      python: 2.7
+    - name: Test on Python 3.4
+      python: 3.4
+    - name: Test on Python 3.5
+      python: 3.5
+    - name: Test on Python 3.6
+      python: 3.6
+    - name: Test on Python 3.7
+      python: 3.7
+    - name: Test on Python 3.8
+      python: 3.8
+    - name: Test on Python 3.8-dev
+      python: 3.8-dev
+    - name: Test on pypy2
+      python: pypy2
+    - name: Test on pypy2.7
+      python: pypy2.7
+    - name: Test on pypy3
+      python: pypy3
+    - name: Test on pypy3.5
+      python: pypy3.5
+
+    - stage: Windows Tests
+      name: Test on Python 2.7
+      os: windows
+      language: sh
+      python: 2.7
+      before_install:
+        - choco install python2
+        - export PATH="/c/Python27:/c/Python27/Scripts:$PATH"
+    - name: Test on Python 3.8
+      os: windows
+      language: sh
+      python: 3.8
+      before_install:
+        - choco install python3
+        - export PATH="/c/Python38:/c/Python38/Scripts:$PATH"
+    - name: Test on PyPy 2
+      os: windows
+      language: sh
+      python: pypy2
+      before_install:
+        - choco install python.pypy
+        - choco install pip
+        - export PATH="/c/ProgramData/chocolatey/lib/python.pypy/tools:$PATH"
+    - name: Test on PyPy 3
+      os: windows
+      language: sh
+      python: pypy3
+      before_install:
+        - choco install pypy3
+        - choco install pip
+        - export PATH="/c/ProgramData/chocolatey/lib/python.pypy/tools:$PATH"
+      
+    - stage: Deployment Checks
+      name: Documentation Check
+      python: 3.7
+      script:
+        - tox -e docs
+    - script: tox -e changelog
+      name: CHANGELOG Generation
+      python: 3.7
+
+    - stage: Deploy
+      if: branch != master
+      name: GitHub Releases
+      language: python
+      script: 
+        - tox -e deploy
+
+    - stage: Advanced Testing
+      if: branch == master
+      name: Mutation Tests
+      python: 3.7
+      env: LET_ME_FAIL=true
+      script: tox -e mutate
+
+install:
+- pip install tox tox-wheel tox-travis tox-pip-extensions codecov
+
+script: tox
+
+after_success:
+- codecov --root .tox/py37
+
+deploy:
+  provider: releases
+  # ⋮
+  edge: true
+  token:
+    secure: crxHVb5+lzRXdVeLY0qHE331GfdpWJhwATb8puPAhBJ9jqwtFWNzijJY5QHEvsqTyLAhnxqx87cxvDaEp1JivGwDRHGh234WW/v4dDaKdO6LNS31kNCHVoFnixsmdEdD7Slb3Gi0Kahq8yHyReZILrlGnWpbMOKIl4nu4/SCD3DGrVx4HK+isP4QYlGU9hlXiX1VwmhfKG41YZKdYAj9KStCNp004HwnS6FP23pX3CNPzR74wbn/k40/o5Dmd3tj+WjandIMw3lfiDwGkWMMMJIc8LhA/EaDRtaxPGTdmYvR2bv3+Rw7+ylE093At3SjCCtAw0Cdsmuauoliqlq5tZa2HMNRcjCoyRRkpSaDXgcZc0pI+HKneJOTTEdvZJC6jwCZw1lkF5RGDo34KUTQvW1vZfWfGIRZXvxHdNRFMy8/tbN8eA66bgowN6tA3O4nSk3jloGqVr5X/pXW5yVhS7hGsLqOY74holwgRYQqxrhFIUy4AoiN43OjY3KnIClHpAGcn/UrI1N8cMcwWDfpYHi6IN2tjhvL/7Kke7d07qGy+6sjrMfR4V3nT/3ijqDaGaknI4UwQXMP8jy2eIR+tCjbMZjTjf8uwfgovDISFK1IBnXfX0VMfl4Ve8h5apLjVPgWTAeHEOZ1X+Y4Z+SP6SZgoz+x/Lg40M4Lhrptx/U=
+  cleanup: false
+  overwrite: true
+  file_glob: true
+  file:
+    - "dist/**/*"
+    - "/reports/CHANGELOG"
+  on:
+    tags: true
+    repo: droxpopuli/pycoin
+    branch: master
+
+notifications:
+  webhooks:
+    urls:
+    - https://webhooks.gitter.im/e/f52e97114e50d5dc8162
+    on_success: always
+    on_failure: always
+    on_start: always
